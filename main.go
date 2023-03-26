@@ -2,10 +2,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"os"
+	"strings"
 )
 
 func check(e error) {
@@ -25,10 +27,13 @@ func readImage(path string) image.Image {
 
 func main() {
 	var in, mask, out string
+	var spriteWidth, spriteHeight int
 	flags := flag.NewFlagSet("demasker", flag.ExitOnError)
 	flags.StringVar(&in, "in", "", "input file")
 	flags.StringVar(&mask, "mask", "", "mask file")
-	flags.StringVar(&out, "out", "", "output file")
+	flags.StringVar(&out, "out", "", "output folder")
+	flags.IntVar(&spriteWidth, "sh", 30, "sprite width")
+	flags.IntVar(&spriteHeight, "sw", 22, "sprite height")
 	err := flags.Parse(os.Args[1:])
 	if in == "" || mask == "" || out == "" || err != nil {
 		flags.Usage()
@@ -63,11 +68,20 @@ func main() {
 		}
 	}
 
-	// write the result to the output file
-	f, err := os.Create(out)
-	check(err)
-	defer f.Close()
+	var (
+		name = strings.TrimSuffix(in, ".png")
+		maxX = outImg.Bounds().Dx()
+	)
 
-	err = png.Encode(f, outImg)
-	check(err)
+	check(os.MkdirAll(out, 0755))
+
+	for x := 0; x < maxX; x += spriteWidth {
+		for y := 0; y < outImg.Bounds().Dy(); y += spriteHeight {
+			f, err := os.Create(fmt.Sprintf("%s/%s-%d-%d.png", out, name, y, x))
+			check(err)
+			defer f.Close()
+			err = png.Encode(f, outImg.SubImage(image.Rect(x, y, x+spriteWidth, y+spriteHeight)))
+			check(err)
+		}
+	}
 }
