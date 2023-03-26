@@ -3,10 +3,9 @@ package main
 import (
 	"flag"
 	"image"
-	"os"
-
 	"image/color"
 	"image/png"
+	"os"
 )
 
 func check(e error) {
@@ -50,10 +49,17 @@ func main() {
 	// input image to transparent based on darkness
 	for x := 0; x < inImg.Bounds().Dx(); x++ {
 		for y := 0; y < inImg.Bounds().Dy(); y++ {
-			maskColor := color.RGBAModel.Convert(maskImg.At(x, y)).(color.RGBA)
-			alpha := 255 - maskColor.R // assuming grayscale mask
-			inColor := color.RGBAModel.Convert(inImg.At(x, y)).(color.RGBA)
-			outImg.Set(x, y, color.RGBA{R: inColor.R, G: inColor.G, B: inColor.B, A: alpha})
+
+			var (
+				maskColor = color.RGBAModel.Convert(maskImg.At(x, y)).(color.RGBA)
+				inColor   = color.RGBAModel.Convert(inImg.At(x, y)).(color.RGBA)
+				a         = 255 - maskColor.R // assuming grayscale mask
+				r         = uint8(uint16(inColor.R) * uint16(a) / 255)
+				g         = uint8(uint16(inColor.G) * uint16(a) / 255)
+				b         = uint8(uint16(inColor.B) * uint16(a) / 255)
+			)
+
+			outImg.Set(x, y, color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: a})
 		}
 	}
 
