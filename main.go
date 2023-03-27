@@ -64,7 +64,7 @@ func main() {
 				b         = uint8(uint16(inColor.B) * uint16(a) / 255)
 			)
 
-			outImg.Set(x, y, color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: a})
+			outImg.Set(x, y, color.RGBA{R: r, G: g, B: b, A: a})
 		}
 	}
 
