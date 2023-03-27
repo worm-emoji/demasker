@@ -71,12 +71,13 @@ func main() {
 	var (
 		name = strings.TrimSuffix(in, ".png")
 		maxX = outImg.Bounds().Dx()
+		maxY = outImg.Bounds().Dy()
 	)
 
 	check(os.MkdirAll(out, 0755))
 
 	for x := 0; x < maxX; x += spriteWidth {
-		for y := 0; y < outImg.Bounds().Dy(); y += spriteHeight {
+		for y := 0; y < maxY; y += spriteHeight {
 			f, err := os.Create(fmt.Sprintf("%s/%s-%d-%d.png", out, name, y, x))
 			check(err)
 			defer f.Close()
