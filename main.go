@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"image/png"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -69,16 +70,20 @@ func main() {
 	}
 
 	var (
-		name = strings.TrimSuffix(in, ".png")
-		maxX = outImg.Bounds().Dx()
-		maxY = outImg.Bounds().Dy()
+		maxX  = outImg.Bounds().Dx()
+		maxY  = outImg.Bounds().Dy()
+		op, _ = filepath.Abs(out)
+		name  = strings.TrimSuffix(filepath.Base(in), ".png")
 	)
 
-	check(os.MkdirAll(out, 0755))
+	check(os.MkdirAll(op, 0755))
 
 	for x := 0; x < maxX; x += spriteWidth {
 		for y := 0; y < maxY; y += spriteHeight {
-			f, err := os.Create(fmt.Sprintf("%s/%s-%d-%d.png", out, name, y, x))
+			p := fmt.Sprintf("%s/%s-%d-%d.png", op, name, y, x)
+			ap, err := filepath.Abs(p)
+			check(err)
+			f, err := os.Create(ap)
 			check(err)
 			defer f.Close()
 			err = png.Encode(f, outImg.SubImage(image.Rect(x, y, x+spriteWidth, y+spriteHeight)))
